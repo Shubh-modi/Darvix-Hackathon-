@@ -59,13 +59,67 @@ streamlit run streamlit_app.py
 
 ---
 
-## 💡 Approach Used
-The approach for solving the problem includes:
-- **Streamlit Frontend** for interactive UI.
-- **Backend Python logic** in `backend/generator.py` for processing text and generating results.
-- **Knowledge Base (`kb/`)** containing feedback and style guidelines.
-- **FAISS index (`.kb_index/`)** for fast retrieval of relevant information.
-- **Environment variables (`.env`)** for sensitive data handling.
+
+## Approach  
+
+### Objective  
+To create an AI system that rewrites technical feedback in a friendly, mentor-like tone, while still maintaining the technical depth and providing actionable improvement steps.
+
+---
+
+### Technologies & APIs Used  
+- **Groq LLaMA 3 API** – Core large language model used to rephrase review comments empathetically.  
+  - API Key: Stored securely in environment variables during development (`gsk_********`).
+- **LangChain** – Used for prompt creation, chaining review processing steps, and structured response formatting.
+- **HuggingFace Embeddings** – Provides semantic embeddings of code and comments to enhance context-awareness.
+- **Streamlit** – User interface for uploading JSON data and viewing generated empathetic feedback.
+
+---
+
+### Detailed Steps  
+
+1. **Input Collection**  
+   - Accepts JSON input in the following format:
+     ```json
+     {
+       "code_snippet": "def get_active_users(users):\n results = []\n for u in users:\n if u.is_active == True and u.profile_complete == True:\n results.append(u)\n return results",
+       "review_comments": [
+         "This is inefficient. Don't loop twice conceptually.",
+         "Variable 'u' is a bad name.",
+         "Boolean comparison '== True' is redundant."
+       ]
+     }
+     ```
+
+2. **Prompt Engineering**  
+   - Designed a LangChain `PromptTemplate` that:
+     - Includes the original code snippet.
+     - Passes each review comment separately.
+     - Requests the model to produce:
+       - Positive rephrasing.
+       - The underlying reason (“why”).
+       - Specific improvement suggestions.
+       - Example code corrections.
+       - Optional reference links.
+
+3. **Model Processing**  
+   - Groq LLaMA 3 model is queried through the API.  
+   - HuggingFace embeddings help preserve semantic closeness between comments and code context.
+
+4. **Output Formatting**  
+   - Each comment’s response is formatted into Markdown:
+     - Original comment.
+     - Positive rewording.
+     - Explanation.
+     - Suggested improvement (code block).
+   - All responses combined into a downloadable `.md` report.
+
+5. **User Interface**  
+   - Built using Streamlit:
+     - Paste or upload JSON.
+     - Click “Generate” to get empathetic review.
+     - Download the report.
+
 
 ---
 
@@ -77,6 +131,12 @@ The approach for solving the problem includes:
 API_KEY=your_key_here
 ```
 This key might be required for API calls in `generator.py` or other modules.
+
+---
+
+## Overview  
+The Empathetic Code Reviewer is an AI-powered tool that transforms raw, harsh, or overly direct code review comments into **empathetic, constructive, and educational feedback**.  
+Its purpose is to improve developer communication, reduce tension in code reviews, and help engineers grow through clear and supportive suggestions.
 
 ---
 
